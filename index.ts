@@ -14,74 +14,44 @@ function question(query: string): Promise<string> {
   });
 }
 
-// async function confirm_input(): Promise<boolean> {
-//   let confirmed = false;
-
-//   rl.question("Confirm input? [y/n]: ", (answer) => {
-//     switch (answer.toLowerCase()) {
-//       case "y":
-//         confirmed = true;
-//       case "n":
-//         confirmed = false;
-//       default:
-//         console.log("Invalid confirmation, resetting input...");
-//         confirmed = false;
-//     }
-//   });
-
-//   return confirmed;
-// }
+function confirm_input(input: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    rl.question(`Is this correct: "${input}"? [y/n]: `, (answer) => {
+      resolve(answer.toLowerCase() === "y");
+    });
+  });
+}
 
 async function gather_inputs(): Promise<ProjectData> {
+  const fields: { key: keyof ProjectData; prompt: string }[] = [
+    { key: "title", prompt: "Set project title [title]: " },
+    { key: "description", prompt: "Give project a description [description]: " },
+    { key: "modal_title", prompt: "Give the project modal a title [modal_title]: " },
+    { key: "modal_text", prompt: "Give the modal some text [modal_text]: " },
+    { key: "card_image", prompt: "Give the project a firebase image link [card_image]: " },
+  ];
+
   let data: ProjectData = {
     title: "",
-    card_image: "",
     description: "",
-    modal_text: "",
     modal_title: "",
+    modal_text: "",
+    card_image: "",
   };
 
-  const loop_length = Object.keys(data).length; // number of parameters in ProjectData
-
-  for (let i = 0; i < loop_length; i++) {
-    switch (i) {
-      case 0:
-        data.title = await question("Set project title [title field]: ");
-        console.log("title: ", data.title);
-        // let confirmed = await confirm_input();
-        // if (!confirmed) i--;
-
-        break;
-      case 1:
-        data.description = await question("Give project a description [description]: ");
-        console.log("title: ", data.description);
-
-        break;
-      case 2:
-        data.modal_title = await question("Give the project modal a title [modal_title]: ");
-        console.log("modal_title: ", data.modal_title);
-
-        break;
-      case 3:
-        data.modal_text = await question("Give the modal some text [modal_text]: ");
-        console.log("title: ", data.modal_text);
-
-        break;
-      case 4:
-        data.card_image = await question("Give the project a firebase image link [card_image]: ");
-        console.log("title: ", data.card_image);
-
-        break;
-      default:
-        break;
+  for (const field of fields) {
+    let valid = false;
+    while (!valid) {
+      const response = await question(field.prompt);
+      valid = await confirm_input(response);
+      if (valid) {
+        data[field.key] = response;
+      }
     }
   }
 
   rl.close();
-
-  console.log("Created the following object:");
-  console.log(data);
-
+  console.log("Inputs recorded: \n", data);
   return data;
 }
 
