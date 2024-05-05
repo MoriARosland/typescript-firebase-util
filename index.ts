@@ -1,4 +1,5 @@
 import { ProjectData } from "./types";
+import { uploadProject } from "./firebase";
 import * as readline from "readline";
 
 const rl = readline.createInterface({
@@ -28,7 +29,7 @@ async function gather_inputs(): Promise<ProjectData> {
     { key: "description", prompt: "Give project a description [description]: " },
     { key: "modal_title", prompt: "Give the project modal a title [modal_title]: " },
     { key: "modal_text", prompt: "Give the modal some text [modal_text]: " },
-    { key: "card_image", prompt: "Give the project a firebase image link [card_image]: " },
+    // { key: "card_image", prompt: "Give the project a firebase image link [card_image]: " },
   ];
 
   let data: ProjectData = {
@@ -36,7 +37,7 @@ async function gather_inputs(): Promise<ProjectData> {
     description: "",
     modal_title: "",
     modal_text: "",
-    card_image: "",
+    card_image: "<URL>",
   };
 
   for (const field of fields) {
@@ -58,9 +59,11 @@ async function gather_inputs(): Promise<ProjectData> {
 async function main() {
   try {
     let data: ProjectData = await gather_inputs();
-    console.log(data);
+    await uploadProject(data);
   } catch (error) {
     console.error("Could not fetch inputs: ", error);
+  } finally {
+    process.exit(0);
   }
 }
 

@@ -23,9 +23,9 @@ export async function getImgURL() {
  */
 export async function uploadProject(data: ProjectData) {
   try {
-    const docRef = doc(collection(db, "test"));
+    const docRef = doc(collection(db, "projects"));
     await setDoc(docRef, data);
-    console.log("Document successfully written!");
+    console.log("Project successfully uploaded!");
   } catch (error) {
     console.error("Error writing document: ", error);
   }
